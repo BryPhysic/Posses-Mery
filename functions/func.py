@@ -2,12 +2,12 @@ import os
 import cv2
 import pandas as pd
 
-# Definir las rutas
+
 video_folder = 'Data/UBI_FIGHTS/videos'
 annotation_folder = 'Data/UBI_FIGHTS/annotation'
 output_folder = 'Images/datos/'
 
-# Crear subcarpetas para las categorías
+
 fight_folder = os.path.join(output_folder, 'fight')
 no_fight_folder = os.path.join(output_folder, 'no_fight')
 
@@ -25,19 +25,17 @@ def extract_and_label_frames(video_path, csv_path, fight_folder, no_fight_folder
         if not ret:
             break
 
-        # Procesar solo cada "frame_interval" fotogramas
         if frame_count % frame_interval == 0:
             label = labels.iloc[frame_count, 0]
             frame_name = f"{video_name}_frame_{frame_count}.jpg"
             
             if label == 1:
                 frame_path = os.path.join(fight_folder, frame_name)
-                # Crear un archivo de etiqueta para YOLOv8 en la carpeta de peleas
+                
                 label_file_path = frame_path.replace('.jpg', '.txt')
                 with open(label_file_path, 'w') as f:
-                    # Etiqueta genérica para indicar presencia de pelea
-                    f.write("0 0.5 0.5 1.0 1.0")
-            else:
+                   # aun debo saber que tipo de etiqueta voy a usar (roboflow)
+                    f.write("0 0.5 0.5 1.0 1.0") # etiqueta generica para probar
                 frame_path = os.path.join(no_fight_folder, frame_name)
             
             cv2.imwrite(frame_path, frame)
@@ -46,7 +44,7 @@ def extract_and_label_frames(video_path, csv_path, fight_folder, no_fight_folder
 
     cap.release()
 
-# Procesar todos los videos en la carpeta
+
 for subdir in ['fight', 'normal']:
     video_subfolder = os.path.join(video_folder, subdir)
     for video_file in os.listdir(video_subfolder):
