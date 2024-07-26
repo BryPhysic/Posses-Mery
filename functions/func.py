@@ -14,7 +14,7 @@ no_fight_folder = os.path.join(output_folder, 'no_fight')
 os.makedirs(fight_folder, exist_ok=True)
 os.makedirs(no_fight_folder, exist_ok=True)
 
-def extract_and_label_frames(video_path, csv_path, fight_folder, no_fight_folder, frame_interval=10):
+def extract_and_label_frames(video_path, csv_path, fight_folder, no_fight_folder, frame_interval=5):
     video_name = os.path.basename(video_path).split('.')[0]
     cap = cv2.VideoCapture(video_path)
     labels = pd.read_csv(csv_path, header=None)
@@ -34,9 +34,9 @@ def extract_and_label_frames(video_path, csv_path, fight_folder, no_fight_folder
                 frame_path = os.path.join(fight_folder, frame_name)
                 # aun debo guardar el archivo de texto con las coordenadas eso lo hcemos con roboflow
                 label_file_path = frame_path.replace('.jpg', '.txt')
-                with open(label_file_path, 'w') as f:
+                #with open(label_file_path, 'w') as f:
                     
-                    f.write("0 0.5 0.5 1.0 1.0")
+                    #f.write("0 0.5 0.5 1.0 1.0")
             else:
                 frame_path = os.path.join(no_fight_folder, frame_name)
             
