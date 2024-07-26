@@ -14,7 +14,7 @@ no_fight_folder = os.path.join(output_folder, 'no_fight')
 os.makedirs(fight_folder, exist_ok=True)
 os.makedirs(no_fight_folder, exist_ok=True)
 
-def extract_and_label_frames(video_path, csv_path, fight_folder, no_fight_folder, frame_interval=1001000):
+def extract_and_label_frames(video_path, csv_path, fight_folder, no_fight_folder, frame_interval=1):
     video_name = os.path.basename(video_path).split('.')[0]
     cap = cv2.VideoCapture(video_path)
     labels = pd.read_csv(csv_path, header=None)
