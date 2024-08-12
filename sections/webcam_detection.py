@@ -38,7 +38,7 @@ def show_webcam_detection():
         </style>
     """, unsafe_allow_html=True)
 
-    # Usa todo el ancho de la página
+
     webrtc_ctx = webrtc_streamer(
         key="example",
         mode=WebRtcMode.SENDRECV,
@@ -49,7 +49,7 @@ def show_webcam_detection():
                 "height": 1080,
                 "frameRate": {"ideal": 60}
             },
-            "audio": True,  # Desactivamos el audio para centrarnos en el video
+            "audio": True,  
         },
         async_processing=True,
     )
