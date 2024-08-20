@@ -3,6 +3,7 @@ import cv2
 from ultralytics import YOLO
 import numpy as np
 from PIL import Image
+import time
 import os
 from datetime import datetime, timedelta
 
@@ -12,9 +13,12 @@ def get_available_cameras():
         cap = cv2.VideoCapture(i)
         if cap.isOpened():
             available_cameras.append(i)
+            print(f"Camera {i} is available")
             cap.release()
+        else:
+            print(f"Camera {i} is not available")
+    
     return available_cameras
-
 def get_available_models():
     models_dir = 'Models'
     return [f for f in os.listdir(models_dir) if f.endswith('.pt')]
@@ -172,7 +176,8 @@ def show_webcam_detection():
             stframe.image(frame_rgb, channels="RGB", use_column_width=True)
 
         
-        cv2.waitKey(1)
+       #cv2.waitKey(1)
+       time.sleep(0.001)
 
     cap.release()
     if out is not None:
