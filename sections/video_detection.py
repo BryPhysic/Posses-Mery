@@ -24,7 +24,7 @@ def plot_custom_bboxes(image, results, color=(255, 0, 0)):
                 cv2.rectangle(image, (int(b[0]), int(b[1])), (int(b[2]), int(b[3])), color, 2)
                 
                 # Añadir etiqueta
-                label = f"{class_name} 97%"
+                label = f"{class_name}"
                 cv2.putText(image, label, (int(b[0]), int(b[1]) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, color, 2)
     
     return image, violence_detected

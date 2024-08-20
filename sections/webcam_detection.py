@@ -38,7 +38,7 @@ def plot_custom_bboxes(image, results, color=(255, 0, 0)):
                 
                 
                 #label = f"{class_name} {box.conf:.2f}" 
-                label = f"Pelea 97%" 
+                label = f"Pelea " 
                 cv2.putText(image, label, (int(b[0]), int(b[1]) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, color, 2)
     
     
