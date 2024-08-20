@@ -177,7 +177,7 @@ def show_webcam_detection():
 
         
        #cv2.waitKey(1)
-       time.sleep(0.001)
+    time.sleep(0.001)
 
     cap.release()
     if out is not None:
