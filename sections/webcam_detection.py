@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 
 def get_available_cameras():
     available_cameras = []
-    for i in range(10):  # Comprueba hasta 10 cámaras
+    for i in range(10):  
         cap = cv2.VideoCapture(i)
         if cap.isOpened():
             available_cameras.append(i)
@@ -29,15 +29,15 @@ def plot_custom_bboxes(image, results, color=(255, 0, 0)):
             
             if class_name == 'Violence':
                 violence_detected = True
-                b = box.xyxy[0]  # get box coordinates in (top, left, bottom, right) format
+                b = box.xyxy[0]  
                 cv2.rectangle(image, (int(b[0]), int(b[1])), (int(b[2]), int(b[3])), color, 2)
                 
-                # Añadir etiqueta y confianza
+                
                 #label = f"{class_name} {box.conf:.2f}" 
                 label = f"Pelea" 
                 cv2.putText(image, label, (int(b[0]), int(b[1]) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, color, 2)
     
-    # Añadir fecha y hora
+    
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     cv2.putText(image, current_time, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
     
@@ -54,36 +54,42 @@ def get_unique_filename(base_path, base_name, ext):
 def show_webcam_detection():
     st.title("Detección con Cámara Web")
 
-    # Obtener modelos disponibles
+    
     available_models = get_available_models()
     if not available_models:
         st.error("No se encontraron modelos en la carpeta /Models.")
         return
 
-    # Selector de modelo
+    
     selected_model = st.selectbox("Selecciona un modelo:", available_models)
 
-    # Cargar el modelo YOLO
+    #
     @st.cache_resource
     def load_model(model_path):
         return YOLO(f'Models/{model_path}')
 
     model = load_model(selected_model)
 
-    # Obtener cámaras disponibles
+    
     available_cameras = get_available_cameras()
     if not available_cameras:
         st.error("No se encontraron cámaras disponibles.")
         return
 
-    # Selector de cámara
-    selected_camera = st.selectbox("Selecciona una cámara:", available_cameras)
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        selected_camera = st.selectbox("Selecciona una cámara:", available_cameras)
+    with col2:
+        enable_recording = st.checkbox("Habilitar grabación de video", value=False)
 
-    # Slider para ajustar la confianza
+   # selected_camera = st.selectbox("Selecciona una cámara:", available_cameras)
+
+   
     confidence_threshold = st.slider("Umbral de confianza", min_value=0.0, max_value=1.0, value=0.25, step=0.01)
 
-    # Opción para grabar
-    enable_recording = st.checkbox("Habilitar grabación de video", value=False)
+    
+    #enable_recording = st.checkbox("Habilitar grabación de video", value=False)
 
     # Inicializar estados en session_state si no existen
     if 'detection_active' not in st.session_state:
@@ -92,11 +98,11 @@ def show_webcam_detection():
         st.session_state.run_camera = False
 
     # Botones para controlar la aplicación
-    col1, col2 = st.columns(2)
-    with col1:
+    col3, col4 = st.columns(2)
+    with col3:
         if st.button("Iniciar/Detener Cámara", key="start_stop_camera"):
             st.session_state.run_camera = not st.session_state.run_camera
-    with col2:
+    with col4:
         if st.button("Iniciar/Detener Detección", key="start_stop_detection"):
             st.session_state.detection_active = not st.session_state.detection_active
 
@@ -156,17 +162,16 @@ def show_webcam_detection():
                 last_recording_time = current_time
                 st.success(f"Video guardado: {video_filename}")
             
-            # Convertir de BGR a RGB
             annotated_frame_rgb = cv2.cvtColor(annotated_frame, cv2.COLOR_BGR2RGB)
             
-            # Mostrar el frame anotado
+       
             stframe.image(annotated_frame_rgb, channels="RGB", use_column_width=True)
         else:
-            # Mostrar el frame sin anotaciones
+            
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             stframe.image(frame_rgb, channels="RGB", use_column_width=True)
 
-        # Agregar un pequeño retraso para evitar que la aplicación se bloquee
+        
         cv2.waitKey(1)
 
     cap.release()
