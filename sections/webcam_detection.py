@@ -56,14 +56,16 @@ def get_unique_filename(base_path, base_name, ext):
         counter += 1
 
 def show_webcam_detection():
-    st.title("Detección con Cámara Web")
+    st.title("Sistema de Detección de Violencia")
+    st.write("---")
 
+    
     available_models = get_available_models()
     if not available_models:
         st.error("No se encontraron modelos en la carpeta /Models.")
         return
 
-    selected_model = st.selectbox("Selecciona un modelo:", available_models)
+    selected_model = st.selectbox("Selecciona un modelo de detección:", available_models)
 
     @st.cache_resource
     def load_model(model_path):
@@ -71,40 +73,48 @@ def show_webcam_detection():
 
     model = load_model(selected_model)
 
+    st.write("---")
+
+    
     available_cameras = get_available_cameras()
     if not available_cameras:
         st.error("No se encontraron cámaras disponibles.")
         return
 
-    # Usar session_state para almacenar la cámara seleccionada
     if 'selected_camera' not in st.session_state:
         st.session_state.selected_camera = available_cameras[0]
 
-    # Permitir la selección de cámara solo si no se está ejecutando la detección
-    if not st.session_state.get('run_camera', False):
-        st.session_state.selected_camera = st.selectbox("Selecciona una cámara:", available_cameras, index=available_cameras.index(st.session_state.selected_camera))
+    st.session_state.selected_camera = st.selectbox("Selecciona una cámara:", available_cameras, index=available_cameras.index(st.session_state.selected_camera))
 
-    enable_recording = st.checkbox("Habilitar grabación de video", value=False)
+    st.write("---")
 
-    confidence_threshold = st.slider("Umbral de confianza", min_value=0.0, max_value=1.0, value=0.25, step=0.01)
-
-    if 'detection_active' not in st.session_state:
-        st.session_state.detection_active = False
+  
     if 'run_camera' not in st.session_state:
         st.session_state.run_camera = False
+    if 'detection_active' not in st.session_state:
+        st.session_state.detection_active = False
 
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
     with col1:
-        if st.button("Iniciar/Detener Cámara", key="start_stop_camera"):
+        if st.button(" Iniciar/Detener Cámara", key="camera_button", use_container_width=True):
             st.session_state.run_camera = not st.session_state.run_camera
-    with col2:
-        if st.button("Iniciar/Detener Detección", key="start_stop_detection"):
-            st.session_state.detection_active = not st.session_state.detection_active
-
-    stframe = st.empty()
-    alert_placeholder = st.empty()
+            if not st.session_state.run_camera:
+                st.session_state.detection_active = False
 
     if st.session_state.run_camera:
+        with col2:
+            if st.button(" Iniciar/Detener Detección", key="detection_button", use_container_width=True):
+                st.session_state.detection_active = not st.session_state.detection_active
+        with col3:
+            enable_recording = st.checkbox(" Habilitar Grabación", value=False)
+
+        st.write("---")
+
+        confidence_threshold = st.slider("Umbral de confianza", min_value=0.0, max_value=1.0, value=0.25, step=0.01)
+
+        stframe = st.empty()
+        alert_placeholder = st.empty()
+
         cap = cv2.VideoCapture(st.session_state.selected_camera)
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
         out = None
@@ -139,28 +149,25 @@ def show_webcam_detection():
                 else:
                     alert_placeholder.empty()
                 
-                current_time = datetime.now()
-                if violence_detected and enable_recording and not recording and (current_time - last_recording_time) > timedelta(minutes=1):
-                    recording = True
-                    timestamp = current_time.strftime("%Y%m%d_%H%M%S")
-                    video_filename = get_unique_filename(results_dir, f"violence_detected_{timestamp}", ".mp4")
-                    out = cv2.VideoWriter(video_filename, fourcc, fps, (frame.shape[1], frame.shape[0]))
+                if violence_detected and enable_recording:
+                    current_time = datetime.now()
+                    if not recording and (current_time - last_recording_time) > timedelta(minutes=0.5):
+                        recording = True
+                        timestamp = current_time.strftime("%Y%m%d_%H%M%S")
+                        video_filename = get_unique_filename(results_dir, f"violence_detected_{timestamp}", ".mp4")
+                        out = cv2.VideoWriter(video_filename, fourcc, fps, (frame.shape[1], frame.shape[0]))
 
-                if recording and violence_detected:
-                    out.write(annotated_frame)
-                elif recording and not violence_detected:
+                    if recording:
+                        out.write(annotated_frame)
+                elif recording:
                     recording = False
                     out.release()
-                    last_recording_time = current_time
+                    last_recording_time = datetime.now()
                     st.success(f"Video guardado: {video_filename}")
-                    # Reiniciar el modelo YOLO
-                    model = load_model(selected_model)
                 
-                annotated_frame_rgb = cv2.cvtColor(annotated_frame, cv2.COLOR_BGR2RGB)
-                stframe.image(annotated_frame_rgb, channels="RGB", use_column_width=True)
+                stframe.image(cv2.cvtColor(annotated_frame, cv2.COLOR_BGR2RGB), channels="RGB", use_column_width=True)
             else:
-                frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                stframe.image(frame_rgb, channels="RGB", use_column_width=True)
+                stframe.image(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB), channels="RGB", use_column_width=True)
 
             time.sleep(0.001)
 
