@@ -1,3 +1,4 @@
+import time
 import streamlit as st
 import cv2
 from ultralytics import YOLO
@@ -172,7 +173,8 @@ def show_webcam_detection():
             stframe.image(frame_rgb, channels="RGB", use_column_width=True)
 
         
-        cv2.waitKey(1)
+        #cv2.waitKey(1)
+        time.sleep(0.001)
 
     cap.release()
     if out is not None:
