@@ -51,7 +51,7 @@ class VideoTransformer(VideoTransformerBase):
         img = frame.to_ndarray(format="bgr24")
         
         # Realizar la detección con YOLO
-        results = self.model.predict(img, conf=self.confidence_threshold)
+        results = self.model.predict(img, conf=self.confidence_threshold,imgsz=250)
         annotated_frame, violence_detected = plot_custom_bboxes(img, results, color=(255, 0, 0))
         
         # Lógica de grabación si se detecta violencia
